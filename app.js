@@ -2,22 +2,27 @@ const express = require('express');
 require('dotenv/config');
 const morgan = require('morgan');
 const mongoose = require('mongoose');
-const cors = require('cors')
+const cors = require('cors');
+const authJwt = require('./helpers/jwt');
+const errorHandler = require('./helpers/error-handler')
 
 const app = express();
 app.use(cors());
-app.options('*', cors())
+app.options('*', cors());
 
 
 //Middlewares
 app.use(express.json());
 app.use(morgan('tiny'));
+app.use(authJwt());
+app.use(errorHandler)
 
 //Routes
 const categoriesRoutes = require('./routes/categories');
 const productsRoutes = require('./routes/products');
 const usersRoutes = require('./routes/users');
 const ordersRoutes = require('./routes/orders');
+const { application } = require('express');
 
 const api = process.env.API_URL;
 
@@ -33,12 +38,12 @@ mongoose.connect(process.env.CONNECTION_STRING, {
   useUnifiedTopology: true,
   dbName: 'eshop'
 })
-.then( () => {
-  console.log('database connection OK')
-})
-.catch( (err) => {
-  console.log(err)
-})
+  .then(() => {
+    console.log('database connection OK')
+  })
+  .catch((err) => {
+    console.log(err)
+  })
 
 
 //Server
